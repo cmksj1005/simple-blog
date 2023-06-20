@@ -69,6 +69,7 @@ app.get('/posts', function (req, res) {
       })
       .catch((error) => {
         console.log('{message: ' + error + '}');
+        res.status(500).json({ error: 'No results returned' });
       });
   } else if (inputMinDate) {
     blogService
@@ -78,6 +79,7 @@ app.get('/posts', function (req, res) {
       })
       .catch((error) => {
         console.log('{message: ' + error + '}');
+        res.status(500).json({ error: 'No results returned' });
       });
   } else {
     blogService
@@ -87,6 +89,7 @@ app.get('/posts', function (req, res) {
       })
       .catch((error) => {
         console.log('{message: ' + error + '}');
+        res.status(500).json({ error: 'No results returned' });
       });
   }
 });
