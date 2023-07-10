@@ -52,7 +52,7 @@ module.exports.addPost = (postData) => {
   return new Promise((resolve, reject) => {
     if (postData) {
       postData.id = posts.length + 1;
-      postData.postDate = new Date();
+      postData.postDate = formatDate(new Date());
       posts.push(postData);
       resolve('success');
     } else {
@@ -60,6 +60,15 @@ module.exports.addPost = (postData) => {
     }
   });
 };
+
+// Helper function to format the date as "YYYY-MM-DD" or "YYYY-M-D"
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
 module.exports.getPostsByCategory = (inputCategory) => {
   return new Promise((resolve, reject) => {
@@ -97,5 +106,17 @@ module.exports.getPostById = (id) => {
     } else {
       reject('No result returned');
     }
+  });
+};
+
+module.exports.getPublishedPostsByCategory = (category) => {
+  return new Promise((resolve, reject) => {
+    if (posts.length == 0) {
+      reject('no results returned');
+    }
+    const filteredPosts = posts.filter(
+      (post) => post.published == true && post.category == category
+    );
+    resolve(filteredPosts);
   });
 };
