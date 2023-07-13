@@ -254,12 +254,12 @@ app.get('/categories', function (req, res) {
   blogService
     .getCategories()
     .then((categories) => {
-      res.render('Categories', { data: categories });
+      res.render('categories', { data: categories });
       //res.json(categories);
     })
     .catch((err) => {
       console.log('{message: ' + err + '}');
-      res.render('Categories', { message: 'no results' });
+      res.render('categories', { message: 'no results' });
     });
 });
 
