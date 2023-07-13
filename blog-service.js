@@ -39,6 +39,18 @@ module.exports.getPublishedPosts = () => {
   });
 };
 
+module.exports.getPublishedPostsByCategory = (category) => {
+  return new Promise((resolve, reject) => {
+    if (posts.length == 0) {
+      reject('no results returned');
+    }
+    const filteredPosts = posts.filter(
+      (post) => post.published == true && post.category == category
+    );
+    resolve(filteredPosts);
+  });
+};
+
 module.exports.getCategories = () => {
   return new Promise((resolve, reject) => {
     if (categories.length == 0) {
@@ -53,6 +65,11 @@ module.exports.addPost = (postData) => {
     if (postData) {
       postData.id = posts.length + 1;
       postData.postDate = formatDate(new Date());
+      if (postData.published) {
+        postData.published = 'true';
+      } else {
+        postData.published = 'false';
+      }
       posts.push(postData);
       resolve('success');
     } else {
@@ -99,24 +116,12 @@ module.exports.getPostsByMinDate = (inputMinDate) => {
 
 module.exports.getPostById = (id) => {
   return new Promise((resolve, reject) => {
-    const foundPost = posts.find((post) => post.id === id);
+    const foundPost = posts.find((post) => post.id == id);
 
     if (foundPost) {
       resolve(foundPost);
     } else {
       reject('No result returned');
     }
-  });
-};
-
-module.exports.getPublishedPostsByCategory = (category) => {
-  return new Promise((resolve, reject) => {
-    if (posts.length == 0) {
-      reject('no results returned');
-    }
-    const filteredPosts = posts.filter(
-      (post) => post.published == true && post.category == category
-    );
-    resolve(filteredPosts);
   });
 };

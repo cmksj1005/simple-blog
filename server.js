@@ -14,16 +14,25 @@
 var express = require('express');
 var app = express();
 const blogService = require('./blog-service');
-const path = require('path');
 const exphbs = require('express-handlebars');
 const stripJs = require('strip-js');
 const blogData = require('./blog-service');
-
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
-
 const upload = multer(); // no { storage: storage }
+
+app.use(function (req, res, next) {
+  let route = req.path.substring(1);
+  app.locals.activeRoute =
+    '/' +
+    (isNaN(route.split('/')[1])
+      ? route.replace(/\/(?!.*)/, '')
+      : route.replace(/\/(.*)/, ''));
+  app.locals.viewingCategory = req.query.category;
+  next();
+});
+
 app.use(express.urlencoded({ extended: true }));
 //To know how to handle HTML files that are formatted using handlebars
 app.engine(
@@ -119,7 +128,6 @@ app.get('/blog', async (req, res) => {
   try {
     // Obtain the full list of "categories"
     let categories = await blogData.getCategories();
-
     // store the "categories" data in the viewData object (to be passed to the view)
     viewData.categories = categories;
   } catch (err) {
@@ -144,11 +152,9 @@ app.get('/blog', async (req, res) => {
 app.get('/blog/:id', async (req, res) => {
   // Declare an object to store properties for the view
   let viewData = {};
-
   try {
     // declare empty array to hold "post" objects
     let posts = [];
-
     // if there's a "category" query, filter the returned posts by category
     if (req.query.category) {
       // Obtain the published "posts" by category
@@ -309,19 +315,8 @@ app.post('/posts/add', upload.single('featureImage'), (req, res) => {
   }
 });
 
-app.use(function (req, res, next) {
-  let route = req.path.substring(1);
-  app.locals.activeRoute =
-    '/' +
-    (isNaN(route.split('/')[1])
-      ? route.replace(/\/(?!.*)/, '')
-      : route.replace(/\/(.*)/, ''));
-  app.locals.viewingCategory = req.query.category;
-  next();
-});
-
 app.use((req, res) => {
-  res.status(404).send('Page Not Found');
+  res.status(404).render('404');
 });
 
 blogService
