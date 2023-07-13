@@ -66,7 +66,7 @@ app.engine(
     },
   })
 );
-app.set('view engine', 'hbs');
+app.set('view engine', '.hbs');
 
 var HTTP_PORT = process.env.PORT || 8080;
 
