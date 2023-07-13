@@ -64,11 +64,13 @@ module.exports.addPost = (postData) => {
   return new Promise((resolve, reject) => {
     if (postData) {
       postData.id = posts.length + 1;
-      postData.postDate = formatDate(new Date());
+      // Add the "postDate" field with the current date in the required format
+      const currentDate = new Date();
+      postData.postDate = formatDate(currentDate);
       if (postData.published) {
-        postData.published = 'true';
+        postData.published = true;
       } else {
-        postData.published = 'false';
+        postData.published = false;
       }
       posts.push(postData);
       resolve('success');
