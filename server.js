@@ -63,6 +63,12 @@ app.engine(
       safeHTML: function (context) {
         return stripJs(context);
       },
+      formatDate: function (dateObj) {
+        let year = dateObj.getFullYear();
+        let month = (dateObj.getMonth() + 1).toString();
+        let day = dateObj.getDate().toString();
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      },
     },
   })
 );
@@ -201,8 +207,12 @@ app.get('/posts', function (req, res) {
   if (inputCategory) {
     blogService
       .getPostsByCategory(inputCategory)
-      .then((posts) => {
-        res.render('posts', { data: posts });
+      .then((inputCategory) => {
+        if (inputCategory.length > 0) {
+          res.render('posts', { data: inputCategory });
+        } else {
+          res.render('posts', { message: 'no results' });
+        }
         // res.json(posts);
       })
       .catch((error) => {
@@ -213,8 +223,12 @@ app.get('/posts', function (req, res) {
   } else if (inputMinDate) {
     blogService
       .getPostsByMinDate(inputMinDate)
-      .then((posts) => {
-        res.render('posts', { data: posts });
+      .then((inputMinDate) => {
+        if (inputMinDate.length > 0) {
+          res.render('posts', { data: inputMinDate });
+        } else {
+          res.render('posts', { message: 'no results' });
+        }
         // res.json(posts);
       })
       .catch((error) => {
@@ -223,10 +237,15 @@ app.get('/posts', function (req, res) {
         //res.status(500).json({ error: 'No results returned' });
       });
   } else {
+    console.log('In posts route');
     blogService
       .getAllPosts()
       .then((posts) => {
-        res.render('posts', { data: posts });
+        if (posts.length > 0) {
+          res.render('posts', { data: posts });
+        } else {
+          res.render('posts', { message: 'no results' });
+        }
         // res.json(posts);
       })
       .catch((error) => {
@@ -254,7 +273,11 @@ app.get('/categories', function (req, res) {
   blogService
     .getCategories()
     .then((categories) => {
-      res.render('categories', { data: categories });
+      if (categories) {
+        res.render('categories', { data: categories });
+      } else {
+        res.render('posts', { message: 'no results' });
+      }
       //res.json(categories);
     })
     .catch((err) => {
@@ -263,8 +286,39 @@ app.get('/categories', function (req, res) {
     });
 });
 
+app.get('/categories/add', (req, res) => {
+  res.render('addCategory', {
+    layout: 'main',
+  });
+});
+
+app.post('/categories/add', (req, res) => {
+  return new Promise((resolve, reject) => {
+    blogService
+      .addCategory(req.body)
+      .then((result) => {
+        resolve(result);
+        res.redirect('/categories');
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+});
+
 app.get('/posts/add', (req, res) => {
-  res.render('addPost'); // Renders the "about" view using Handlebars
+  blogService
+    .getCategories()
+    .then((resolvedCategories) => {
+      res.render('addPost', {
+        data: resolvedCategories,
+      });
+    })
+    .catch((err) => {
+      res.render('addPost', {
+        categories: [],
+      });
+    });
 });
 // *Before using Handlebars*
 // app.get('/posts/add', function (req, res) {
@@ -313,6 +367,30 @@ app.post('/posts/add', upload.single('featureImage'), (req, res) => {
       });
     // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
   }
+});
+
+app.get('/categories/delete/:id', (req, res) => {
+  blogService
+    .deleteCategoryById(req.params.id)
+    .then(() => {
+      res.redirect('/categories');
+    })
+    .catch((err) => {
+      res.status(500).send('Internal Server Error');
+      console.log('Unable to Remove Category / Category not found');
+    });
+});
+
+app.get('/posts/delete/:id', (req, res) => {
+  blogService
+    .deletePostById(req.params.id)
+    .then(() => {
+      res.redirect('/posts');
+    })
+    .catch((err) => {
+      res.status(500).send('Internal Server Error');
+      console.log('Unable to Remove Post / Post not found');
+    });
 });
 
 app.use((req, res) => {
