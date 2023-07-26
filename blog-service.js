@@ -1,11 +1,13 @@
 const Sequelize = require('sequelize');
+const env = require('dotenv');
+env.config();
 
 var sequelize = new Sequelize(
-  'qnwifpjw', // I should put this information in cyclic because it doesn't exist in github.
-  'qnwifpjw',
-  'vyOj3kIEdnNYpMZ6IXvMCRgyCgPABTqx',
+  process.env.PG_USERDB, // I should put this information in cyclic because it doesn't exist in github.
+  process.env.PG_USERDB,
+  process.env.PG_PASSWORD,
   {
-    host: 'isilo.db.elephantsql.com',
+    host: process.env.PG_HOST,
     dialect: 'postgres',
     port: 5432,
     dialectOptions: {
