@@ -17,11 +17,6 @@ var sequelize = new Sequelize(
 
 //Is it possible to connect those two tables even though Post doesn't have category variable?
 var Post = sequelize.define('Post', {
-  PostId: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
   body: Sequelize.TEXT,
   title: Sequelize.STRING,
   postDate: Sequelize.DATE,
@@ -80,7 +75,7 @@ module.exports.getPublishedPosts = () => {
         (eachPost) => eachPost.published == true
       );
 
-      if (PublishedPosts.length > 0) {
+      if (PublishedPosts) {
         resolve(PublishedPosts); // Resolve with the array of posts if there are any
       } else {
         reject('No results returned');
@@ -97,7 +92,9 @@ module.exports.getPublishedPostsByCategory = (inputCategory) => {
           eachPost.published == true && eachPost.category == inputCategory
       );
 
-      if (PublishedPosts.length > 0) {
+      if (PublishedPosts) {
+        console.log('successfully returned the published posts by category');
+        console.log(PublishedPosts);
         resolve(PublishedPosts); // Resolve with the array of posts if there are any
       } else {
         reject('No results returned');
@@ -126,26 +123,27 @@ module.exports.getCategories = () => {
 
 module.exports.addPost = (postData) => {
   return new Promise((resolve, reject) => {
-    const currentDate = new Date();
+    postData.postDate = new Date();
     postData.published = postData.published ? true : false;
 
-    for (const eachData in postData) {
-      if (`${postData[eachData]}` == '') {
-        eachData[postData] = null;
+    console.log('!!!This is postAdd data!!!');
+    console.log(postData);
+
+    for (eachData in postData) {
+      if (eachData == '') {
+        eachData = null;
       }
     }
 
+    if (postData.category == 'Select Category') {
+      postData.category = null;
+    }
+
     //check the body whether the name is right or not in addPost.hbs
-    Post.create({
-      body: postData.body,
-      title: postData.title,
-      postDate: currentDate,
-      featureImage: postData.featureImage,
-      published: postData.published,
-    })
-      .then(() => {
-        resolve();
+    Post.create(postData)
+      .then((result) => {
         console.log('A post is successfully created');
+        resolve(result);
       })
       .catch((error) => {
         console.error('unable to create post:', error);
@@ -215,10 +213,10 @@ module.exports.getPostById = (postId) => {
   return new Promise((resolve, reject) => {
     Post.findAll({
       //because of findAll
-      where: { PostId: postId },
+      where: { id: postId },
     })
       .then((data) => {
-        if (data && data.length > 0) {
+        if (data) {
           //??with the data[0], ie: only provide the first object??
           resolve(data[0]); // Return only the first object if found
         } else {
@@ -250,7 +248,7 @@ module.exports.deleteCategoryById = (categoryId) => {
 module.exports.deletePostById = (postId) => {
   return new Promise((resolve, reject) => {
     Post.destroy({
-      where: { PostId: postId },
+      where: { id: postId },
     })
       .then(() => {
         console.log('destroyed');

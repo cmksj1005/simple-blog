@@ -48,12 +48,16 @@
           <div class='col-md-6'>
             <div class='form-group'>
               <label for='category'>Category:</label>
-              <select class='form-select' name='category' id='category'>
-                <option>Select Category</option>
-                {{#each data}}
-                  <option value={{id}}>{{category}}</option>
-                {{/each}}
-              </select>
+              {{#if data}}
+                <select class='form-select' name='category' id='category'>
+                  <option>Select Category</option>
+                  {{#each data}}
+                    <option value={{id}}>{{category}}</option>
+                  {{/each}}
+                </select>
+              {{else}}
+                <div>No Categories</div>
+              {{/if}}
             </div>
           </div>
           <div class='col-md-6'>

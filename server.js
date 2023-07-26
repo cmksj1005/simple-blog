@@ -227,7 +227,7 @@ app.get('/posts', function (req, res) {
         if (inputMinDate.length > 0) {
           res.render('posts', { data: inputMinDate });
         } else {
-          res.render('posts', { message: 'no results' });
+          res.render('posts', { message: 'no 11results' });
         }
         // res.json(posts);
       })
@@ -273,10 +273,10 @@ app.get('/categories', function (req, res) {
   blogService
     .getCategories()
     .then((categories) => {
-      if (categories) {
+      if (categories.length > 0) {
         res.render('categories', { data: categories });
       } else {
-        res.render('posts', { message: 'no results' });
+        res.render('categories', { message: 'no results' });
       }
       //res.json(categories);
     })
@@ -382,6 +382,7 @@ app.get('/categories/delete/:id', (req, res) => {
 });
 
 app.get('/posts/delete/:id', (req, res) => {
+  console.log('It is in post delete id');
   blogService
     .deletePostById(req.params.id)
     .then(() => {
