@@ -9,16 +9,14 @@ var userSchema = new Schema({
   },
   password: String,
   email: String,
-  loginHistory: [{ dateTime: Date }, { userAgent: String }],
+  loginHistory: [{ dateTime: Date, userAgent: String }],
 });
 
 let User; // to be defined on new connection
 
 module.exports.initialize = function () {
   return new Promise((resolve, reject) => {
-    let db = mongoose.createConnection(
-      'mongodb+srv://cmksj1005:Fy6agl7ZNpiLIETo@senecaweb.9lyby8c.mongodb.net/?retryWrites=true&w=majority'
-    );
+    let db = mongoose.createConnection(process.env.MONGO_HOST_URI);
     db.on('error', (err) => {
       console.log('MONGO ERR: ' + err);
       reject(err);

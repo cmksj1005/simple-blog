@@ -22,11 +22,11 @@
       <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm Password" required>
     </div>
     </br>
-    <button type="submit" class="btn btn-success" value="Register">Register</button>
+    <button type="submit" class="btn btn-success" value="Register"  style="float: right;">Register</button>
   </form>
   {{else}}
     <div class="alert alert-success"> <strong>Success:</strong> {{successMessage}}</div><a class="btn btn-success pull-right" href="/login">&nbsp;&nbsp;&nbsp;Proceed to Log in&nbsp;&nbsp;&nbsp;</a><br /><br /><br /> 
   {{/unless}}
-  </br>
-    <a href="/login" class="btn btn-primary">Login</a>
+  {{!-- </br>
+    <a href="/login" class="btn btn-primary">Login</a> --}}
 </div>

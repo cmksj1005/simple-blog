@@ -22,7 +22,49 @@ const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 const upload = multer(); // no { storage: storage }
 const authData = require('./auth-service');
+
+const env = require('dotenv');
+env.config();
+
 const clientSessions = require('client-sessions');
+
+var HTTP_PORT = process.env.PORT || 8080;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
+
+app.use(express.urlencoded({ extended: true }));
+
+// session data available at req.cookieName i.e. req.session here:
+app.use(
+  clientSessions({
+    cookieName: 'session', // this is the object name that will be added to 'req'
+    secret: 'long_unguessable_password_string_web322', // this should be a long un-guessable string.
+    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+    activeDuration: 1000 * 60, // the session will be extended by this many ms each request (1 minute)
+  })
+);
+
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
+
+function ensureLogin(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
+}
+
+function onHttpStart() {
+  console.log('Express http server listening on: ' + HTTP_PORT);
+}
 
 app.use(function (req, res, next) {
   let route = req.path.substring(1);
@@ -35,7 +77,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(express.urlencoded({ extended: true }));
 //To know how to handle HTML files that are formatted using handlebars
 app.engine(
   '.hbs',
@@ -75,42 +116,6 @@ app.engine(
   })
 );
 app.set('view engine', '.hbs');
-
-var HTTP_PORT = process.env.PORT || 8081;
-
-cloudinary.config({
-  cloud_name: 'dkq0f4tvy',
-  api_key: '475962748573349',
-  api_secret: 'Sh37Mo6j-tE6MKUpFnMLqEV3Vkk',
-  secure: true,
-});
-
-// session data available at req.cookieName i.e. req.session here:
-app.use(
-  clientSessions({
-    cookieName: 'session', // this is the object name that will be added to 'req'
-    secret: 'long_unguessable_password_string_web322', // this should be a long un-guessable string.
-    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
-    activeDuration: 1000 * 60, // the session will be extended by this many ms each request (1 minute)
-  })
-);
-
-app.use(function (req, res, next) {
-  res.locals.session = req.session;
-  next();
-});
-
-function ensureLogin(req, res, next) {
-  if (!req.session.user) {
-    res.redirect('/login');
-  } else {
-    next();
-  }
-}
-
-function onHttpStart() {
-  console.log('Express http server listening on: ' + HTTP_PORT);
-}
 
 app.use(express.static('static'));
 
@@ -484,14 +489,14 @@ app.use((req, res) => {
   res.status(404).render('404');
 });
 
-blogService
-  .initialize()
-  .then(() => {
-    app.listen(HTTP_PORT, onHttpStart);
-  })
-  .catch(() => {
-    console.log("data don't be initialized");
-  });
+// blogService
+//   .initialize()
+//   .then(() => {
+//     app.listen(HTTP_PORT, onHttpStart);
+//   })
+//   .catch(() => {
+//     console.log("data don't be initialized");
+//   });
 
 blogData
   .initialize()
