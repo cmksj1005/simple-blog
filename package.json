@@ -10,6 +10,7 @@
   "author": "Shinjo Kang",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "client-sessions": "^0.8.0",
     "cloudinary": "^1.37.2",
     "dotenv": "^16.3.1",

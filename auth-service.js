@@ -17,7 +17,7 @@ let User; // to be defined on new connection
 module.exports.initialize = function () {
   return new Promise((resolve, reject) => {
     let db = mongoose.createConnection(
-      'mongodb+srv://cmksj1005: kbHh2dOQN7OELsRw@senecaweb.9lyby8c.mongodb.net/?retryWrites=true&w=majority'
+      'mongodb+srv://cmksj1005: AgNTcJtAOIPUx9vX@senecaweb.9lyby8c.mongodb.net/?retryWrites=true&w=majority'
     );
     db.on('error', (err) => {
       console.log('MONGO ERR: ' + err);
@@ -58,40 +58,41 @@ module.exports.registerUser = function (userData) {
         })
         .catch((err) => {
           console.log(err);
-          reject('PASSWORD ENCRYPTION ERROR');
+          reject('There was an error encrypting the password');
         });
     }
   });
 };
 
+// question about this part
 module.exports.checkUser = function (userData) {
   return new Promise((resolve, reject) => {
-    User.find({ userName: userData.userName })
+    User.findOne({ userName: userData.userName })
       .exec()
-      .then((users) => {
+      .then((user) => {
         bcrypt
-          .compare(users[0].password, userData.password)
+          .compare(userData.password, user.password) //?? hash?
           .then((result) => {
             //console.log(result);
-            if (result) {
-              users[0].loginHistory.push({
+            if (result === true) {
+              user.loginHistory.push({
                 dateTime: new Date().toString(),
                 userAgent: userData.userAgent,
               });
               User.updateOne(
-                { userName: users[0].userName },
-                { $set: { loginHistory: users[0].loginHistory } }
+                { userName: user.userName },
+                { $set: { loginHistory: user.loginHistory } }
               )
                 .exec()
                 .then(() => {
-                  resolve(users[0]);
+                  resolve(user);
                 })
                 .catch((err) => {
                   reject('There was an error verifying the user: ' + err);
                   console.log(err);
                 });
             } else {
-              reject('CREDENTIALS INCORRECT: TRY AGAIN!');
+              reject('Incorrect Password for user: ' + userData.userName);
             }
           })
           .catch((err) => {
