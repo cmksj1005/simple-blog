@@ -399,7 +399,6 @@ app.post(
           res.redirect('/posts/add');
           console.log(err);
         });
-      // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
     }
   }
 );

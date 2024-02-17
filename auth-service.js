@@ -62,7 +62,6 @@ module.exports.registerUser = function (userData) {
   });
 };
 
-// question about this part
 module.exports.checkUser = function (userData) {
   return new Promise((resolve, reject) => {
     User.findOne({ userName: userData.userName })

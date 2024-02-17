@@ -17,7 +17,6 @@ var sequelize = new Sequelize(
   }
 );
 
-//Is it possible to connect those two tables even though Post doesn't have category variable?
 var Post = sequelize.define('Post', {
   body: Sequelize.TEXT,
   title: Sequelize.STRING,
